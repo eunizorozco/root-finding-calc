@@ -1,0 +1,104 @@
+# Custom button
+<CalcButton@Button>:
+  font_size: 40
+  on_press:
+    self.parent.parent.enter(self.text)
+<FuncButton@Button>:
+  font_size: 40
+  background_color: 1, 0, 0, 0
+  foreground_color: 0, 0, 0, 1
+
+# Define id so I can refer to the CalculatorLayout
+# class functions
+# Display points to the entry widget
+<CalculatorLayout>:
+  id: calculator
+  display: entry
+  input: None
+  eq: None
+  lower: None
+  upper: None
+  rows: 7
+  padding: 10
+  spacing: 10
+
+  # Where input is displayed
+  BoxLayout:
+    TextInput:
+      id: entry
+      text: "f(x) = "
+      font_size: 60
+      multiline: False
+      readonly: True
+
+  BoxLayout:
+    spacing: 10
+    CalcButton:
+      text: "sin"
+    CalcButton:
+      text: "cos"
+    CalcButton:
+      text: "tan"
+    Button:
+      text: "AC"
+      on_press: calculator.clear()
+
+  BoxLayout:
+    spacing: 10
+    CalcButton:
+      text: "x"
+    CalcButton:
+      text: "^"
+    CalcButton:
+      text: "("
+    CalcButton:
+      text: ")"
+
+  # When buttons are pressed update the entry
+  BoxLayout:
+    spacing: 10
+    CalcButton:
+      text: "7"
+    CalcButton:
+      text: "8"
+    CalcButton:
+      text: "9"
+    CalcButton:
+      text: "+"
+
+  BoxLayout:
+    spacing: 10
+    CalcButton:
+      text: "4"
+    CalcButton:
+      text: "5"
+    CalcButton:
+      text: "6"
+    CalcButton:
+      text: "-"
+
+  BoxLayout:
+    spacing: 10
+    CalcButton:
+      text: "1"
+    CalcButton:
+      text: "2"
+    CalcButton:
+      text: "3"
+    CalcButton:
+      text: "*"
+
+  # When equals is pressed pass text in the entry
+  # to the calculate function
+  BoxLayout:
+    spacing: 10
+    FuncButton:
+      text: "Solution"
+      on_press: calculator.solution()
+    CalcButton:
+      text: "0"
+    FuncButton:
+      text: "="
+      on_press: calculator.calculate()
+    CalcButton:
+      text: "/"
