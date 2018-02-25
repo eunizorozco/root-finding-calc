@@ -94,6 +94,8 @@ Add additional notes about how to deploy this on a live system
 
 ## Authors
 
-@eunizorozco
+@eunizorozco euniceorozco.cpclass@gmail.com
+@mabelestacio mabelski.0305@gmail.com
+@charleslugi charles.lugi@gmail.com
 
 
