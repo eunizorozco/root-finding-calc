@@ -70,7 +70,8 @@ The secant line has equation:
 ![alt text](http://planetcalc.com/cgi-bin/mimetex.cgi?%5Cfrac%7By%20-%20f%28x_1%29%7D%7Bf%28x_1%29-f%28x_0%29%7D%3D%5Cfrac%7Bx%20-%20x_1%7D%7Bx_1-x_0%7D)
 
 
-The root of secant line (where у=0) hence
+The root of secant line (where у=0) hence:
+
 ![alt text](http://planetcalc.com/cgi-bin/mimetex.cgi?x%20%3D%20x_1%20-%20%5Cfrac%7Bx_1%20-%20x_0%7D%7Bf%28x_1%29-f%28x_0%29%7Df%28x_1%29)
 
 ## Running the tests
