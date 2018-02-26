@@ -13,17 +13,25 @@ Builder.load_string("""
 
 <RowHeader>:
     background_down: self.background_normal
+    height: 100
+    size_hint_y: None
 
 <EditableCell>:
     multiline: False
     on_focus: if not self.focus: self.data_table.data_update(self.id, self.text)
+    height: 50
+    size_hint_y: None
 
 <StaticCell>:
     halign: 'left'
+    height: 50
+    size_hint_y: None
 
 <DataTable>:
     id: table_grid
     cols: self.ncol
+    size_hint_y: None
+
 """)
 
 class ColHeader(Button):
@@ -66,6 +74,9 @@ class DataTable(GridLayout):
     def __init__(self, data = {}, editable = False, header_column = '', 
                  header_row = [], **kw):
         super(DataTable, self).__init__(**kw)
+
+        self.bind(height=self.setter('minimum_height'))
+
         self.data = data
         self.ncol = len(data)
         self.editable = editable
@@ -76,7 +87,7 @@ class DataTable(GridLayout):
         self.cells = {}
         for key in self.header_row:
             cell_id = str(key)+'_head'
-            cell = ColHeader(text = str(key), data_table = self, id = cell_id)
+            cell = ColHeader(text = str(key), data_table = self, id = cell_id, size_hint_y=None, height=100)
             self.cells[cell_id] = cell
             self.add_widget(cell)
         for i in xrange(self.nrow):

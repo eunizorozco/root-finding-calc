@@ -7,6 +7,11 @@
   font_size: 40
   background_color: 1, 0, 0, 0
   foreground_color: 0, 0, 0, 1
+<TrigoButton@Button>:
+  font_size: 40
+  on_press:
+    self.parent.parent.trigo(self.text)
+
 
 # Define id so I can refer to the CalculatorLayout
 # class functions
@@ -34,11 +39,11 @@
 
   BoxLayout:
     spacing: 10
-    CalcButton:
+    TrigoButton:
       text: "sin"
-    CalcButton:
+    TrigoButton:
       text: "cos"
-    CalcButton:
+    TrigoButton:
       text: "tan"
     Button:
       text: "AC"
@@ -94,8 +99,8 @@
   BoxLayout:
     spacing: 10
     FuncButton:
-      text: "Graph"
-      on_press: calculator.graph()
+      text: "Solution"
+      on_press: calculator.solution()
     CalcButton:
       text: "0"
     FuncButton:

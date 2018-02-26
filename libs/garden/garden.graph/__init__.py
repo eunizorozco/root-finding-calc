@@ -1613,7 +1613,6 @@ if __name__ == '__main__':
                 self.contourplot = plot
 
                 Clock.schedule_interval(self.update_contour, 1 / 60.)
-
             return b
 
         def make_contour_data(self, ts=0):

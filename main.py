@@ -11,8 +11,13 @@ from kivy.properties import DictProperty, NumericProperty, StringProperty, \
 
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.popup import Popup
+from kivy.uix.label import Label
+from kivy.uix.scrollview import ScrollView
+from kivy.core.window import Window
 
-from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 
 from utils.datatable import DataTable
 from kivy.logger import Logger
@@ -24,12 +29,17 @@ import random
 from math import sin, floor, ceil, sqrt
 from kivy.garden.graph import Graph, LinePlot, SmoothLinePlot, HBar, MeshLinePlot
 
-screen_manager = ScreenManager()
+screen_manager = ScreenManager(transition=NoTransition())
 
 class CalculatorLayout(GridLayout):
 
   solutions = ObjectProperty(None)
   brange = ObjectProperty(None)
+
+  data = ObjectProperty(None)
+
+  def trigo(self, text):
+    self.enter(text + '(')
 
   def enter(self, text):
     if self.input is None:
@@ -41,38 +51,40 @@ class CalculatorLayout(GridLayout):
   def clear(self):
     self.display.text = "f(x) = "
     self.input = ''
-    self.eq = None
-    self.lower = None
-    self.upper = None
+    self.eq = ''
+    self.lower = ''
+    self.upper = ''
 
   def calculate(self):
     if self.input:
       try:
         # Solve formula and display it in entry
         # which is pointed at by display
-        if self.eq is None:
-          self.eq = self.input
-          self.display.text = 'A = '
-        elif self.lower is None:
+        if self.eq is None or self.eq == '':
+          if self.input.find('x') < 0:
+            self.display.text = 'Ans = ' + str(eval(self.input))
+          else:
+            self.eq = self.input
+            self.display.text = 'A = '
+        elif self.lower is None or self.lower == '':
           self.lower = self.input
           self.display.text = 'B = '
-        elif self.upper is None:
+        elif self.upper is None or self.upper == '':
           self.upper = self.input
 
-          self.solution()
+          self.solve()
           Logger.debug(['root => ', root])
           Logger.debug(['soln => ', soln])
 
         else:
-          self.solution()
+          self.solve()
         # reset our input
         self.input = ''
       except Exception:
         pass
 
   def graph(self):
-    graph_screen = screen_manager.get_screen('graph')
-    screen_manager.current = 'graph'
+    soln_graph = screen_manager.get_screen('solution').layout
 
     fx = Fx(shunt(self.eq)).eval
     colors = itertools.cycle([rgb('dc7062'), rgb('fff400'), rgb('7dac9f'), rgb('66a8d4'), rgb('e5b060')])
@@ -83,13 +95,13 @@ class CalculatorLayout(GridLayout):
       x = i / 10.
       y = fx(x)
       fxplot.points.append((x, y))
-    graph_screen.graph.add_plot(fxplot) 
+    soln_graph.graph.add_plot(fxplot) 
 
     if self.solutions:
       plot = MeshLinePlot(color=rgb('fff400'))
       
-      xmin = self.solutions[0]
-      xmax = self.solutions[0]
+      xmin = round(self.solutions[0], 4)
+      xmax = xmin
 
       ymin = fx(xmin)
       ymax = ymin
@@ -99,16 +111,15 @@ class CalculatorLayout(GridLayout):
       
       Logger.info("Plotting")
 
-      plotx = MeshLinePlot(color=rgb('fff400'))
+      plotx = MeshLinePlot(color=next(colors))
       plotx.points = [(x, fx(x)) for x in self.solutions]
-      # graph_screen.graph.add_plot(plotx)
 
       counter = len(self.solutions)
       while counter >= 3:
         Logger.info(counter)
         for index in range(min(3, counter)):
-          x = self.solutions[index]
-          y = fx(x)
+          x = round(self.solutions[index], 4)
+          y = round(fx(x), 4)
           x = x
 
           xmin = min([xmin, x])
@@ -121,36 +132,32 @@ class CalculatorLayout(GridLayout):
           counter = counter - 1
           if len(plot.points) >= min(3, len(self.solutions)):
             Logger.debug(plot.points)
-            graph_screen.graph.add_plot(plot)
+            soln_graph.graph.add_plot(plot)
             plot = MeshLinePlot(color=next(colors))
             self.solutions.pop(0)
             counter = len(self.solutions)
             break
-    
 
-    pad = 0.5
+    pad = 0.1
     Logger.debug(plot.points)
-    graph_screen.graph.xmin = min(xmin-pad, 0)
-    graph_screen.graph.xmax = xmax+pad
+    soln_graph.graph.xmin = round(xmin-pad, 1)
+    soln_graph.graph.xmax = round(xmax+pad, 1)
 
-    graph_screen.graph.ymin = ymin-pad
-    graph_screen.graph.ymax = ymax+pad
+    soln_graph.graph.ymin = round(ymin-pad, 2)
+    soln_graph.graph.ymax = round( ymax+pad, 2)
 
-    # Logger.debug([xmin, xmax])
     hbar = MeshLinePlot(color=[1, 1, 1, 1])
-    hbar.points.append((graph_screen.graph.xmin, 0))
-    hbar.points.append((graph_screen.graph.xmax, 0))
+    hbar.points.append((soln_graph.graph.xmin, 0))
+    hbar.points.append((soln_graph.graph.xmax, 0))
+    soln_graph.graph.add_plot(hbar)
+
+    for x, y in plotx.points:
+      vbar = MeshLinePlot(color=rgb('6d98e2'))
+      vbar.points.append((x, 0))
+      vbar.points.append((x, y))
+      soln_graph.graph.add_plot(vbar)
     
-    vbar = MeshLinePlot(color=[1, 1, 1, 1])
-    vbar.points.append((0, graph_screen.graph.ymin))
-    vbar.points.append((0, graph_screen.graph.ymax))
-    
-    graph_screen.graph.add_plot(hbar)
-    graph_screen.graph.add_plot(vbar)
-    
-    # Logger.debug([ymin, ymax])
-    
-  def solution(self):
+  def solve(self):
     
     Logger.info("solving ...")
 
@@ -159,57 +166,93 @@ class CalculatorLayout(GridLayout):
     Logger.debug(['b => ', self.upper])
 
     self.brange = (int(self.lower), int(self.upper))
-    root, soln = solve("secant", self.eq, self.upper, self.lower)
-    roots, fxs = soln
-    roots.append(root)
+    try:
+      root, soln = solve("secant", self.eq, self.upper, self.lower)
+      roots, fxs = soln
+      roots.append(root)
 
-    self.solutions = roots
-    self.display.text = str(round(root, 4))
+      self.solutions = roots
+      self.display.text = str(round(root, 4))
+      screen = screen_manager.get_screen('solution').layout
+      screen.refresh_datatable(soln)
+    except Exception as e:
+      raise e
 
-    data = {
-      'Step': [x+1 for x in range(len(roots))],
-      'x': [round(x, 4) for x in roots],
-      'f(x)': ['{:f}'.format(x) for x in fxs]
-    }
+  def solution(self):
+    # screen_manager.transition.direction = 'left'
+    if self.solutions:
+      if len(self.solutions) > 50:
+        label = Label(text='Calculations took '+str(len(self.solutions))+ ' iterations and exceeded the allocation to be graphed.', size_hint_y=None)
+        label.text_size = Window.width/3, None
+        popup = Popup(title='Cannot graph solution', size_hint=(None, None), size=(Window.width/2, Window.height/2), content= label)
+        popup.open()
+      else:
+        self.graph()
+    screen_manager.current = 'solution'
 
-    Logger.debug(data)
-    # soln_screen = screen_manager.get_screen('solution')
-    # soln_screen.display(data, ['Step', 'x', 'f(x)'], 'Step')
-    # screen_manager.current = 'solution'
 
-class CalculatorScreen(Screen):
-  pass
+class SolutionSreen(Screen):
+  """docstring for SolutionSreen"""
+  layout = ObjectProperty(None)
 
-class SolutionScreen(Screen):
-  def display(self, data, row, col):
-    self.add_widget(DataTable(name = 'static', data=data, header_column = col,
-                                    header_row = row))
 
-class GraphScreen(Screen):
+class SolutionLayout(GridLayout):
 
-  graph = ObjectProperty(None)
-
-  def __init__(self, name):
-    super(GraphScreen, self).__init__()
-    self.name = name
-    self.graph = Graph(xlabel='X', ylabel='Y', x_ticks_minor=0,
+  table = GridLayout(cols=3, size_hint_y=None, spacing=5)
+  graph = Graph(xlabel='X', ylabel='Y', x_ticks_minor=0,
       x_ticks_major=0.1, y_ticks_major=0.1,
       y_grid_label=True, x_grid_label=True, padding=10,
       x_grid=True, y_grid=True, xmin=-0, xmax=50, ymin=-1, ymax=1)
-    self.add_widget(self.graph)
+
+  boxlayout = BoxLayout(orientation='vertical')
+  scrollview = ScrollView()
+
+  backbutton = Button(text='BACK TO CALCULATOR', size_hint=(1, 0.1), background_color=[0, 0, 0, 1])
+
+  def setup_widget(self):
+
+    self.table.bind(minimum_height=self.table.setter('height'))
+    self.backbutton.on_press = self.back
+
+    self.scrollview.add_widget(self.table)
+    self.boxlayout.add_widget(self.graph)
+    self.boxlayout.add_widget(self.backbutton)
     
+    self.add_widget(self.scrollview)
+    self.add_widget(self.boxlayout)
+    
+  def refresh_datatable(self, data):
+    self.table.clear_widgets()
+    roots, fxs = data
+    i = 0
+    self.table.add_widget(Button(text="Steps", size_hint_y=None, height=100, size_hint=(0.2, None)))
+    self.table.add_widget(Button(text="x", size_hint_y=None, height=100, size_hint=(0.4, None))) 
+    self.table.add_widget(Button(text="f(x)", size_hint_y=None, height=100, size_hint=(0.4, None)))
+
+    for x in roots:
+      self.table.add_widget(Button(text=str(i+1), height=40, size_hint=(0.2, None)))
+      self.table.add_widget(Button(text=str(round(x, 4)),background_color = [0, 0, 0, 1], height=40, size_hint=(0.4, None))) 
+      self.table.add_widget(Button(text='{:f}'.format(fxs[i]), background_color = [0, 0, 0, 1], height=40, size_hint=(0.4, None)))
+      i = i + 1
+    
+  def back(self):
+    screen_manager.current = 'calculator'
+
 
 class CalculatorApp(App):
   def build(self):
-    calc = CalculatorScreen(name='calculator')
+
+    calc = Screen(name='calculator')
     calc.add_widget(CalculatorLayout())
-    # calc.add_widget(GraphLayout())
-    soln = SolutionScreen(name='solution')
-    graph = GraphScreen(name='graph')
+
+    soln = SolutionSreen(name='solution')
+    soln.layout = SolutionLayout(cols=2)
+    soln.layout.setup_widget()
+    soln.add_widget(soln.layout)
+    
     
     screen_manager.add_widget(calc)
     screen_manager.add_widget(soln)
-    screen_manager.add_widget(graph)
 
     return screen_manager
 
