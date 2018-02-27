@@ -83,6 +83,26 @@ class CalculatorLayout(GridLayout):
       except Exception:
         pass
 
+  def solve(self):
+    
+    Logger.info("solving ...")
+
+    Logger.debug(['eq => ', self.eq])
+    Logger.debug(['a => ', self.lower])
+    Logger.debug(['b => ', self.upper])
+
+    self.brange = (int(self.lower), int(self.upper))
+    try:
+      root, soln = solve("secant", self.eq, self.upper, self.lower)
+      roots, fxs = soln
+      roots.append(root)
+
+      self.solutions = roots
+      self.display.text = 'Ans = '+str(round(root, 4))
+      screen = screen_manager.get_screen('solution').layout
+      screen.refresh_datatable(soln)
+    except Exception as e:
+      raise e
   def graph(self):
     soln_graph = screen_manager.get_screen('solution').layout
 
@@ -157,26 +177,7 @@ class CalculatorLayout(GridLayout):
       vbar.points.append((x, y))
       soln_graph.graph.add_plot(vbar)
     
-  def solve(self):
-    
-    Logger.info("solving ...")
 
-    Logger.debug(['eq => ', self.eq])
-    Logger.debug(['a => ', self.lower])
-    Logger.debug(['b => ', self.upper])
-
-    self.brange = (int(self.lower), int(self.upper))
-    try:
-      root, soln = solve("secant", self.eq, self.upper, self.lower)
-      roots, fxs = soln
-      roots.append(root)
-
-      self.solutions = roots
-      self.display.text = str(round(root, 4))
-      screen = screen_manager.get_screen('solution').layout
-      screen.refresh_datatable(soln)
-    except Exception as e:
-      raise e
 
   def solution(self):
     # screen_manager.transition.direction = 'left'
@@ -217,7 +218,7 @@ class SolutionLayout(GridLayout):
     self.scrollview.add_widget(self.table)
     self.boxlayout.add_widget(self.graph)
     self.boxlayout.add_widget(self.backbutton)
-    
+
     self.add_widget(self.scrollview)
     self.add_widget(self.boxlayout)
     

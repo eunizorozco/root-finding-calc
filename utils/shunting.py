@@ -1,5 +1,6 @@
 import sys
 from tokenizer import tokenize
+from math import sin, cos, tan, degrees
 
 # A pseudocode of the algorithm is as follows:
 # 1.  While there are tokens to be read:
@@ -20,22 +21,24 @@ BINARY_OPERATORS = ['^', '*', '/', '+', '-']
 UNARY_OPERATORS = ['_', 'sin', 'cos', 'tan', 'csc', 'sec', 'cot', 'arcsin', 'arccos', 'arctan', 'arccsc', 'arcsec', 'arccot']
 LEFT_PARENTHESIS = '('
 RIGHT_PARENTHESIS = ')'
-PEEK = 0
+PEEK = 0 
 
 def eval(x, y, operator):
   x = float(x)
   y = float(y)
-  if operator == "+":
-    return x + y
-  elif operator == "-" or operator == "_":
-    return x - y
-  elif operator == "/":
-    return x / y
-  elif operator == "*":
-    return x * y
-  elif operator == "^":
-    return x ** y
-  else:
+  try:
+    return {
+    'sin': sin(degrees(x)),
+    'cos': cos(degrees(x)),
+    'tan': cos(degrees(x)),
+    '+': x + y,
+    '_': x - y,
+    '-': x - y,
+    '/': x / y,
+    '*': x * y,
+    '^': x ** y
+    }
+  except Exception as e:
     return 0
 
 def shunt(eq):
@@ -91,4 +94,7 @@ def rpn(postfix): # evaluate reverse polish notation
       pass
     else:
       outputStack.append(token)
-  return outputStack[0]
+  try:
+    return outputStack[0]
+  except Exception as e:
+    return 0
