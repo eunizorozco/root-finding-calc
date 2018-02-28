@@ -18,9 +18,10 @@ from kivy.uix.scrollview import ScrollView
 from kivy.core.window import Window
 
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
+from kivy.logger import Logger
 
 from utils.datatable import DataTable
-from kivy.logger import Logger
+
 from rootfinder import solve, Fx
 from utils.shunting import shunt
 
@@ -101,8 +102,11 @@ class CalculatorLayout(GridLayout):
       self.display.text = 'Ans = '+str(round(root, 4))
       screen = screen_manager.get_screen('solution').layout
       screen.refresh_datatable(soln)
+
     except Exception as e:
-      raise e
+      Logger.debug(['exception => ', e])
+      self.display.text = str(e)
+
   def graph(self):
     soln_graph = screen_manager.get_screen('solution').layout
 
@@ -178,7 +182,6 @@ class CalculatorLayout(GridLayout):
       soln_graph.graph.add_plot(vbar)
     
 
-
   def solution(self):
     # screen_manager.transition.direction = 'left'
     if self.solutions:
@@ -247,10 +250,9 @@ class CalculatorApp(App):
     calc.add_widget(CalculatorLayout())
 
     soln = SolutionSreen(name='solution')
-    soln.layout = SolutionLayout(cols=2)
+    soln.layout = SolutionLayout(cols=2, size = (Window.width, Window.height))
     soln.layout.setup_widget()
     soln.add_widget(soln.layout)
-    
     
     screen_manager.add_widget(calc)
     screen_manager.add_widget(soln)

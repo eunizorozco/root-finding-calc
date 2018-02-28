@@ -1,6 +1,7 @@
 import sys
 from tokenizer import tokenize
 from math import sin, cos, tan, degrees
+from kivy.logger import Logger
 
 # A pseudocode of the algorithm is as follows:
 # 1.  While there are tokens to be read:
@@ -24,6 +25,8 @@ RIGHT_PARENTHESIS = ')'
 PEEK = 0 
 
 def eval(x, y, operator):
+  Logger.debug(['x => ', x])
+  Logger.debug(['y => ', y])
   x = float(x)
   y = float(y)
   try:
@@ -37,7 +40,7 @@ def eval(x, y, operator):
     '/': x / y,
     '*': x * y,
     '^': x ** y
-    }
+    }[operator]
   except Exception as e:
     return 0
 
@@ -94,7 +97,4 @@ def rpn(postfix): # evaluate reverse polish notation
       pass
     else:
       outputStack.append(token)
-  try:
-    return outputStack[0]
-  except Exception as e:
-    return 0
+  return outputStack[0]
