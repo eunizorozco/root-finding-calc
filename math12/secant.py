@@ -16,6 +16,7 @@ def secant(x1, x2, f, i): # here goes secant!
   fx1 = f(x1)
   fx2 = f(x2)
 
+  print "x1:", x1, "fx1:",fx1, "x2:", x2,'fx2:', fx2
   x3 = x2 - ((fx2 * (x2 - x1)) / (fx2 - fx1))
   Fx.append(f(x3))
 

@@ -25,8 +25,6 @@ RIGHT_PARENTHESIS = ')'
 PEEK = 0 
 
 def eval(x, y, operator):
-  Logger.debug(['x => ', x])
-  Logger.debug(['y => ', y])
   x = float(x)
   y = float(y)
   try:
@@ -49,6 +47,7 @@ def shunt(eq):
   outputQueue = []
 
   tokens = tokenize(eq)
+  # print 'token', tokens
   while tokens:
     token = tokens.pop(PEEK)
     # Determine if token is an operator
@@ -59,7 +58,7 @@ def shunt(eq):
         # the least index then the higher precendence
         try:
           i = BINARY_OPERATORS.index(operator)
-          if i < index:
+          if i <= index:
             outputQueue.append(operatorStack.pop(PEEK))
           else:
             break
@@ -77,6 +76,9 @@ def shunt(eq):
           break
     else: # token is a constant or number
       outputQueue.append(token)
+    # print 'outputQueue', outputQueue
+    # print 'operatorStack', operatorStack
+
   # While there are operators on the stack, pop them to the queue
   while len(operatorStack) > 0:
     outputQueue.append(operatorStack.pop(PEEK))
@@ -98,3 +100,8 @@ def rpn(postfix): # evaluate reverse polish notation
     else:
       outputStack.append(token)
   return outputStack[0]
+
+if __name__ == '__main__':
+  file = sys.argv[1]
+  for line in open(file, 'r'):
+    print line, shunt(line)
