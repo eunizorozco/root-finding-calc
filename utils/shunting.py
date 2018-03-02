@@ -1,6 +1,8 @@
 import sys
 from tokenizer import tokenize
 from math import sin, cos, tan, degrees
+import decimal
+
 from kivy.logger import Logger
 
 # A pseudocode of the algorithm is as follows:
@@ -24,9 +26,12 @@ LEFT_PARENTHESIS = '('
 RIGHT_PARENTHESIS = ')'
 PEEK = 0 
 
+decimal.getcontext().prec = 6
+
 def eval(x, y, operator):
-  x = float(x)
-  y = float(y)
+  x = decimal.Decimal(x)
+  y = decimal.Decimal(y)
+  # print x, operator, y
   try:
     return {
     'sin': sin(degrees(x)),
@@ -37,12 +42,84 @@ def eval(x, y, operator):
     '-': x - y,
     '/': x / y,
     '*': x * y,
-    '^': x ** y
+    '^': (x + 0) ** y
     }[operator]
-  except Exception as e:
+  except ZeroDivisionError as e:
+    print e
     return 0
+  except ValueError as e:
+    print e
+    if operator == '+':
+      return eval(y, x, operator)
+    elif operator == '-' and x < 0.0 and y < 0.0:
+      return eval(x * -1, y * -1, operator) * -1
+    elif operator == '-' and x < 0.0:
+      return eval(x * -1, y, '+') * -1
+    else:
+      return 0
+  except Exception as e:
+    print 'err type is:', e.__class__.__name__, x, operator, y
+    if e.__class__.__name__ == 'InvalidOperation':
+      if operator == '-' and x < 0.0:
+        return eval(x * -1, y, '+') * -1
+      elif operator == '-' and x < 0.0 and y < 0.0:
+        return eval(x * -1, y * -1, operator) * -1
+      elif operator == '+' and x < 0.0 and y < 0.0:
+        return eval(x * -1, y * -1, operator) * -1
+      elif operator == '+' and x < 0.0:
+        return eval(y, x, operator)
+      elif x == 0 and y == 0:
+        return 0
+      else:
+        raise e       
+
+  # except Exception as e:
+  #   print 'type is:', e.__class__.__name__  
+  #   print e
+
+def toPostfix(infix):
+  stack = []
+  postfix = ''
+
+  for c in infix:
+    if isOperand(c):
+      postfix += c
+    else:
+      if isLeftParenthesis(c):
+        stack.append(c)
+      elif isRightParenthesis(c):
+        operator = stack.pop()
+        while not isLeftParenthesis(operator):
+          postfix += operator
+          operator = stack.pop()              
+      else:
+        while (not isEmpty(stack)) and hasLessOrEqualPriority(c, stack[len(stack)-1]):
+          postfix += stack.pop()
+        stack.append(c)
+
+  while (not isEmpty(stack)):
+    postfix += stack.pop()
+  return postfix
+
+
+def isOperand(c):
+  return c in BINARY_OPERATORS
+
+def isLeftParenthesis(c):
+  return c == LEFT_PARENTHESIS
+def isRightParenthesis(c):
+  return c == RIGHT_PARENTHESIS
+
+def hasLessOrEqualPriority(c, peek):
+  return BINARY_OPERATORS.index(c) <= BINARY_OPERATORS.index(peek)
+
+def isEmpty(stack):
+  return len(stack) == 0
 
 def shunt(eq):
+
+  # return toPostfix(eq)
+
   operatorStack = []
   outputQueue = []
 
@@ -59,7 +136,9 @@ def shunt(eq):
         try:
           i = BINARY_OPERATORS.index(operator)
           if i <= index:
-            outputQueue.append(operatorStack.pop(PEEK))
+            
+            while operatorStack:
+              outputQueue.append(operatorStack.pop(PEEK))
           else:
             break
         except ValueError as e:
@@ -86,6 +165,7 @@ def shunt(eq):
 
 def rpn(postfix): # evaluate reverse polish notation
   outputStack = []
+  # print postfix
   while postfix:
     token = postfix.pop(PEEK)
     if token in BINARY_OPERATORS:
@@ -93,15 +173,20 @@ def rpn(postfix): # evaluate reverse polish notation
         y = outputStack.pop()
         x = outputStack.pop()
         outputStack.append(eval(x, y, token))
+        # print 'output', outputStack
       except IndexError as e:
-        raise e
+        # print e, x, y, token
+        pass
     elif token in UNARY_OPERATORS:
+      print "unary", token
       pass
     else:
       outputStack.append(token)
-  return outputStack[0]
+    # print 'op', postfix
+    # print 'output', outputStack
+  return (outputStack[0])
 
 if __name__ == '__main__':
   file = sys.argv[1]
   for line in open(file, 'r'):
-    print line, shunt(line)
+    print line, '=> ',''.join(shunt(line)) 

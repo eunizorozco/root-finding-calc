@@ -26,6 +26,7 @@ from rootfinder import solve, Fx
 from utils.shunting import shunt
 
 import random
+import decimal
 
 from math import sin, floor, ceil, sqrt
 from kivy.garden.graph import Graph, LinePlot, SmoothLinePlot, HBar, MeshLinePlot
@@ -98,7 +99,9 @@ class CalculatorLayout(GridLayout):
       roots, fxs = soln
       roots.append(root)
 
-      self.solutions = roots
+      self.solutions = [float(x) for x in roots]
+
+      print 'solutions', self.solutions
       self.display.text = 'Ans = '+str(round(root, 4))
       screen = screen_manager.get_screen('solution').layout
       screen.refresh_datatable(soln)
@@ -124,8 +127,8 @@ class CalculatorLayout(GridLayout):
     if self.solutions:
       plot = MeshLinePlot(color=rgb('fff400'))
       
-      xmin = round(self.solutions[0], 4)
-      xmax = xmin
+      xmin = float(round(self.solutions[0], 4))
+      xmax = float(xmin)
 
       ymin = fx(xmin)
       ymax = ymin
@@ -136,26 +139,26 @@ class CalculatorLayout(GridLayout):
       Logger.info("Plotting")
 
       plotx = MeshLinePlot(color=next(colors))
-      plotx.points = [(x, fx(x)) for x in self.solutions]
+      plotx.points = [(float(x), fx(x)) for x in self.solutions]
 
       counter = len(self.solutions)
       while counter >= 3:
         Logger.info(counter)
         for index in range(min(3, counter)):
-          x = round(self.solutions[index], 4)
-          y = round(fx(x), 4)
+          x = round(float(self.solutions[index]), 4)
+          y = round(float(fx(x)), 4)
           x = x
 
-          xmin = min([xmin, x])
-          xmax = max([xmax, x])
+          xmin = float(min([xmin, x]))
+          xmax = float(max([xmax, x]))
 
-          ymin = min([ymin, y])
-          ymax = max([ymax, y])
+          ymin = float(min([ymin, y]))
+          ymax = float(max([ymax, y]))
 
           plot.points.append((x, y))
           counter = counter - 1
           if len(plot.points) >= min(3, len(self.solutions)):
-            Logger.debug(plot.points)
+            Logger.debug(['pts', plot.points])
             soln_graph.graph.add_plot(plot)
             plot = MeshLinePlot(color=next(colors))
             self.solutions.pop(0)
@@ -181,7 +184,6 @@ class CalculatorLayout(GridLayout):
       vbar.points.append((x, y))
       soln_graph.graph.add_plot(vbar)
     
-
   def solution(self):
     # screen_manager.transition.direction = 'left'
     if self.solutions:

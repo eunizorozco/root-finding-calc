@@ -13,12 +13,15 @@ from kivy.logger import Logger
 
 class Fx:
   postfix = None
-
+  eq = None
   def __init__(self, postfix):
     self.postfix = postfix
+    # self.eq = eq
 
   def eval(self, x):
+    # Logger.debug([x if term == 'x' else term for term in self.postfix])
     return rpn([x if term == 'x' else term for term in self.postfix])
+      
 
 def run(algo, seeds, fx):
   return {
@@ -31,8 +34,9 @@ def run(algo, seeds, fx):
 def solve(algo, eq, upper, lower):
   # set initial seeds for the iteration
   fx = Fx(shunt(eq)).eval
-  seeds = bracket(int(upper), int(lower), fx)
-  Logger.debug([eq, seeds])
+  seeds = bracket(int(lower), int(upper), fx)
+  Logger.debug(['bracket', seeds])
+  print(['bracket', seeds])
   # print line, ' => ', round(root, 4)
   return run(algo, seeds, fx)
 
@@ -49,4 +53,5 @@ if __name__ == '__main__':
       upper, lower, eq = line.split(',')
       
       root, soln = solve(algo, eq, upper, lower)
+      print 'root', root
       print eq.strip(), "=>", round(root, 4)
