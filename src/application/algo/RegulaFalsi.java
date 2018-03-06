@@ -2,7 +2,7 @@ package application.algo;
 
 import java.util.StringTokenizer;
 import static application.algo.Utilities.evaluate;
-public class SecantMethod implements RootAlgorithm{
+public class RegulaFalsi implements RootAlgorithm{
 	private String exp;
 	private double[] initGuess;
 	
@@ -25,12 +25,12 @@ public class SecantMethod implements RootAlgorithm{
 	
 	public static RootAlgorithm getAlgo() {
 		if(This==null) {
-			This = new SecantMethod();
+			This = new RegulaFalsi();
 		}
 		return This;
 	}	
 	//set inaccessible constructor:
-	private SecantMethod() {
+	private RegulaFalsi() {
 		
 	}	
 	@Override
@@ -56,20 +56,26 @@ public class SecantMethod implements RootAlgorithm{
 		numIterations = 0;
 		memory = 0;
 		runTime = 0;			
-		double xnMinus1 = 0; 
-		double xn = initGuess[0];
-		double xnPlus1 = initGuess[1];
-		long start = System.currentTimeMillis();	 
+		double a = initGuess[0]; 
+		double b = initGuess[1];
+		double c = a+b/2;
+		double cPrevious = 0;
+		long start = System.currentTimeMillis();
 		
-		do {			
-			xnMinus1 = xn;
-			xn = xnPlus1;			 
-			double fn = evaluate(exp, xn);
-			double fnMinus1 = evaluate(exp, xnMinus1);
-			xnPlus1 = xn - (fn)*(xn-xnMinus1)/(fn-fnMinus1);			
+		do {
+			System.out.println(a + " " + c + " " + b);
+			cPrevious = c;
+			double faAndcaProduct = Utilities.evaluate(exp, a) * Utilities.evaluate(exp, c);
+			if(faAndcaProduct<=0) {
+				b=c;
+			}else {
+				a=c;
+			}
+			double fB = evaluate(exp, b);
+			c = b - (fB*(b-a)) / (fB - evaluate(exp, a));
 			numIterations++;
-		}while(notStopping(xn, xnPlus1) && numIterations<=DIVERGENT_LIMIT);		
-		root = xnPlus1;
+		}while(notStopping(c, cPrevious) && numIterations<=DIVERGENT_LIMIT);		
+		root = c;
 		runTime = System.currentTimeMillis() - start;
 		memory = startMem - Runtime.getRuntime().freeMemory();
 	}
@@ -106,7 +112,7 @@ public class SecantMethod implements RootAlgorithm{
 
 	@Override
 	public String toString() {
-		return "Secant Method";
+		return "Regula Falsi";
 	}
 
 	@Override

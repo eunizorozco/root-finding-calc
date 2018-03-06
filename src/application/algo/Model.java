@@ -29,6 +29,8 @@ public class Model {
 		algoList.add(bisection);
 		RootAlgorithm secant = SecantMethod.getAlgo();
 		algoList.add(secant);
+		RootAlgorithm regulaFalsi = RegulaFalsi.getAlgo();
+		algoList.add(regulaFalsi);
 	}
 	
 	public void solve() {
