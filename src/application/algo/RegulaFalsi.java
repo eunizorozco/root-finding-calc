@@ -60,10 +60,9 @@ public class RegulaFalsi implements RootAlgorithm{
 		double b = initGuess[1];
 		double c = a+b/2;
 		double cPrevious = 0;
-		long start = System.currentTimeMillis();
+		long start = System.nanoTime();
 		
 		do {
-			System.out.println(a + " " + c + " " + b);
 			cPrevious = c;
 			double faAndcaProduct = Utilities.evaluate(exp, a) * Utilities.evaluate(exp, c);
 			if(faAndcaProduct<=0) {
@@ -76,7 +75,7 @@ public class RegulaFalsi implements RootAlgorithm{
 			numIterations++;
 		}while(notStopping(c, cPrevious) && numIterations<=DIVERGENT_LIMIT);		
 		root = c;
-		runTime = System.currentTimeMillis() - start;
+		runTime = System.nanoTime() - start;
 		memory = startMem - Runtime.getRuntime().freeMemory();
 	}
 

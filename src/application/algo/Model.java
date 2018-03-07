@@ -31,14 +31,17 @@ public class Model {
 		algoList.add(secant);
 		RootAlgorithm regulaFalsi = RegulaFalsi.getAlgo();
 		algoList.add(regulaFalsi);
+		RootAlgorithm inverseQuadraticEq = InverseQuadraticInterpolation.getAlgo();
+		algoList.add(inverseQuadraticEq);
 	}
 	
 	public void solve() {
 		selectedAlgorithm.setExpression(display);
 		display = "X = " + String.valueOf(selectedAlgorithm.getRoot());
-		time = "Time(ms): " + selectedAlgorithm.getRunTime();
-		mem = "Mem(KB): " + selectedAlgorithm.getMemory();
+		time = "Time(ns): " + selectedAlgorithm.getRunTime();
+		mem = "Mem(B): " + selectedAlgorithm.getMemory();
 		iterations = "Iterations: " + selectedAlgorithm.getNumIterations();
+		
 	}
 	
 	public ArrayList<RootAlgorithm> getAlgoList(){

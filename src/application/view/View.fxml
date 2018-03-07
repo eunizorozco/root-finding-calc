@@ -36,12 +36,12 @@
                   </HBox>
                   <HBox layoutX="102.0" layoutY="20.0" maxWidth="25.0" prefHeight="25.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
-                        <Label fx:id="lblTime" prefHeight="300.0" prefWidth="300.0" text="Time(ms):">
+                        <Label fx:id="lblTime" prefHeight="300.0" prefWidth="300.0" text="Time(ns):">
                            <font>
                               <Font size="11.0" />
                            </font>
                         </Label>
-                        <Label fx:id="lblMem" prefHeight="300.0" prefWidth="300.0" text="Mem(KB):">
+                        <Label fx:id="lblMem" prefHeight="300.0" prefWidth="300.0" text="Mem(B):">
                            <font>
                               <Font size="11.0" />
                            </font>
@@ -203,7 +203,7 @@
                      <GridPane.margin>
                         <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
                      </GridPane.margin></TextField>
-                  <TextField fx:id="txtX3" editable="false" prefHeight="200.0" prefWidth="200.0" promptText="x3" GridPane.columnIndex="2">
+                  <TextField fx:id="txtX3" prefHeight="200.0" prefWidth="200.0" promptText="x3" GridPane.columnIndex="2">
                      <GridPane.margin>
                         <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
                      </GridPane.margin></TextField>

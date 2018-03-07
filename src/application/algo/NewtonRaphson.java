@@ -58,7 +58,7 @@ public class NewtonRaphson implements RootAlgorithm{
 		runTime = 0;			
 		double x = initGuess[0];
 		double xPrevious;
-		long start = System.currentTimeMillis();
+		long start = System.nanoTime();
 		
 		 
 		
@@ -71,7 +71,7 @@ public class NewtonRaphson implements RootAlgorithm{
 		
 		
 		root = x;
-		runTime = System.currentTimeMillis() - start;
+		runTime = System.nanoTime() - start;
 		memory = startMem - Runtime.getRuntime().freeMemory();
 	}
 
